@@ -1,0 +1,6 @@
+{
+  "name": "Fotus Dashboard",
+  "description": "Painel de controle para monitoramento e gestão de eletropostos",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
