@@ -8,24 +8,33 @@ import CommandsView from './views/CommandsView';
 import SessionsView from './views/SessionsView';
 import LogsView from './views/LogsView';
 import AmbientBackground from './components/AmbientBackground';
-import { Layers, Terminal, Clock, Activity, Settings } from 'lucide-react';
+import { Layers, Terminal, Clock, Activity, Settings, Menu, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function App() {
   const [currentView, setCurrentView] = useState('dashboard');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   return (
     <div className="flex h-screen bg-transparent overflow-hidden font-sans text-zinc-100 relative">
       <AmbientBackground />
       
       {/* Side Navigation */}
-      <aside className="w-20 md:w-64 border-r border-zinc-800/50 bg-zinc-950/40 backdrop-blur-md flex flex-col items-center md:items-start py-6 z-20 shrink-0">
+      <aside className={`transition-all duration-300 border-r border-zinc-800/50 bg-zinc-950/40 backdrop-blur-md flex flex-col py-6 z-20 shrink-0 ${isSidebarOpen ? 'w-64 items-start' : 'w-20 items-center'}`}>
         
-        <div className="flex items-center gap-3 px-0 md:px-6 mb-10 w-full justify-center md:justify-start">
-          <img 
-            src="https://res.cloudinary.com/ddtpuucfi/image/upload/v1776262898/LOGO_Fotus_1A_r2m41s.png" 
-            alt="Fotus" 
-            className="h-10 md:h-12 object-contain shrink-0 brightness-0 invert opacity-90 mx-auto md:mx-0"
-          />
+        <div className={`flex items-center w-full mb-10 ${isSidebarOpen ? 'px-6 justify-between' : 'justify-center px-0'}`}>
+          {isSidebarOpen && (
+            <img 
+              src="https://res.cloudinary.com/ddtpuucfi/image/upload/v1778251202/ChatGPT_Image_23_de_abr._de_2026__13_34_41-removebg-preview_1_rjedu4.png" 
+              alt="Fotus" 
+              className="h-10 md:h-12 object-contain shrink-0 brightness-0 invert opacity-90 mx-auto md:mx-0"
+            />
+          )}
+          <button 
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="p-2 bg-zinc-900/50 hover:bg-zinc-800 rounded-xl text-zinc-400 hover:text-white transition-colors"
+          >
+            {isSidebarOpen ? <ChevronLeft className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
         </div>
 
         <nav className="flex flex-col gap-2 w-full px-3 md:px-4">
@@ -34,24 +43,28 @@ export default function App() {
             label="Dashboard" 
             active={currentView === 'dashboard'} 
             onClick={() => setCurrentView('dashboard')}
+            isOpen={isSidebarOpen}
           />
           <NavItem 
             icon={<Terminal className="h-5 w-5" />} 
             label="Comandos OCPP" 
             active={currentView === 'commands'} 
             onClick={() => setCurrentView('commands')}
+            isOpen={isSidebarOpen}
           />
           <NavItem 
             icon={<Clock className="h-5 w-5" />} 
             label="Sessões" 
             active={currentView === 'sessions'} 
             onClick={() => setCurrentView('sessions')}
+            isOpen={isSidebarOpen}
           />
           <NavItem 
             icon={<Activity className="h-5 w-5" />} 
             label="Logs OCPP" 
             active={currentView === 'logs'} 
             onClick={() => setCurrentView('logs')}
+            isOpen={isSidebarOpen}
           />
         </nav>
 
@@ -61,6 +74,7 @@ export default function App() {
             label="Configurações" 
             active={currentView === 'settings'} 
             onClick={() => setCurrentView('settings')}
+            isOpen={isSidebarOpen}
           />
         </div>
       </aside>
@@ -83,19 +97,19 @@ export default function App() {
   );
 }
 
-function NavItem({ icon, label, active, onClick }: { icon: React.ReactNode, label: string, active: boolean, onClick: () => void }) {
+function NavItem({ icon, label, active, onClick, isOpen = true }: { icon: React.ReactNode, label: string, active: boolean, onClick: () => void, isOpen?: boolean }) {
   return (
     <button 
       onClick={onClick}
-      className={`flex items-center justify-center md:justify-start gap-4 p-3 rounded-2xl md:rounded-xl transition-all duration-200 border border-transparent ${
+      className={`flex items-center ${isOpen ? 'justify-start' : 'justify-center'} gap-4 p-3 rounded-2xl md:rounded-xl transition-all duration-200 border border-transparent ${
         active 
-          ? 'bg-zinc-900 border-zinc-800 text-white shadow-inner' 
+          ? 'bg-zinc-900 border-zinc-800 text-white shadow-[0_0_15px_rgba(255,255,255,0.05)]' 
           : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900/50'
       }`}
       title={label}
     >
       {icon}
-      <span className="hidden md:block text-sm font-medium">{label}</span>
+      {isOpen && <span className="hidden md:block text-sm font-bold tracking-wide">{label}</span>}
     </button>
   );
 }
