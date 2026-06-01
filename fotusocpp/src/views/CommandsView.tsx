@@ -55,59 +55,62 @@ export default function CommandsView() {
   };
 
   if (loading) {
-     return <div className="p-10 text-zinc-400">Carregando dispositivos...</div>;
+     return <div className="p-10 text-slate-500">Carregando dispositivos...</div>;
   }
 
   return (
-    <div className="flex-1 overflow-y-auto px-6 md:px-10 pb-20 custom-scrollbar relative z-10 w-full h-full text-zinc-100">
+    <div className="flex-1 overflow-y-auto w-full h-full text-slate-800 flex flex-col p-6 md:p-8 custom-scrollbar">
       
-      <div className="mb-10 pt-4">
-        <h1 className="text-3xl font-bold tracking-tight text-white">Central de Comandos OCPP</h1>
-        <p className="text-zinc-500 mt-1">Envie comandos remotos para carregadores conectados</p>
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900 flex items-center gap-2">
+          <Terminal className="h-6 w-6 text-brand-blue" />
+          Central de Comandos OCPP
+        </h1>
+        <p className="text-sm text-slate-500 mt-1">Envie comandos remotos para carregadores conectados</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Charger Selection Sidebar */}
-        <div className="lg:col-span-1 space-y-6">
-          <div className="bg-zinc-900/40 rounded-[2.5rem] p-6 border border-zinc-800/60 glass-panel">
-            <h2 className="text-sm font-semibold text-zinc-400 uppercase tracking-widest mb-4">Selecionar Carregador</h2>
+        <div className="lg:col-span-1 space-y-4">
+          <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
+            <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Selecionar Carregador</h2>
             
             <div className="relative">
               <select 
                 value={selectedChargerId}
                 onChange={e => setSelectedChargerId(e.target.value)}
-                className="w-full bg-zinc-950 border border-zinc-800 text-white rounded-2xl px-4 py-3 appearance-none focus:outline-none focus:ring-2 focus:ring-brand-blue"
+                className="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-md px-3 py-2 appearance-none focus:outline-none focus:ring-1 focus:ring-brand-blue focus:border-brand-blue text-sm"
               >
                 <option value="" disabled>Selecione um carregador...</option>
                 {chargers.map(c => (
                   <option key={c.id} value={c.id}>{c.charge_point_id} ({c.status})</option>
                 ))}
               </select>
-              <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                <div className="w-0 h-0 border-l-[5px] border-r-[5px] border-t-[5px] border-transparent border-t-zinc-400"></div>
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                <div className="w-0 h-0 border-l-[4px] border-r-[4px] border-t-[4px] border-transparent border-t-slate-500"></div>
               </div>
             </div>
 
             {selectedCharger && (
-              <div className="mt-6 space-y-4">
-                <div className="flex justify-between items-center bg-zinc-950/50 p-3.5 rounded-2xl border border-zinc-800/50">
-                  <span className="text-zinc-500 text-sm">Status</span>
-                  <span className={`text-sm font-bold px-3 py-1 rounded-full ${isOnline ? 'bg-brand-neon/10 text-brand-neon' : 'bg-red-500/10 text-brand-red'}`}>
+              <div className="mt-4 space-y-2">
+                <div className="flex justify-between items-center bg-slate-50 p-2.5 rounded-md border border-slate-100">
+                  <span className="text-slate-500 text-xs font-medium">Status</span>
+                  <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${isOnline ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                     {selectedCharger.status}
                   </span>
                 </div>
-                <div className="flex justify-between items-center bg-zinc-950/50 p-3.5 rounded-2xl border border-zinc-800/50">
-                  <span className="text-zinc-500 text-sm">Fabricante / Modelo</span>
-                  <span className="text-zinc-300 text-sm font-mono truncate max-w-[150px]">{selectedCharger.fabricante} / {selectedCharger.modelo}</span>
+                <div className="flex justify-between items-center bg-slate-50 p-2.5 rounded-md border border-slate-100">
+                  <span className="text-slate-500 text-xs font-medium">Fabricante / Modelo</span>
+                  <span className="text-slate-700 text-xs font-medium truncate max-w-[150px]">{selectedCharger.fabricante} / {selectedCharger.modelo}</span>
                 </div>
-                <div className="flex justify-between items-center bg-zinc-950/50 p-3.5 rounded-2xl border border-zinc-800/50">
-                  <span className="text-zinc-500 text-sm">Último Heartbeat</span>
-                  <span className="text-zinc-300 text-xs font-mono">{lastHeartbeat}</span>
+                <div className="flex justify-between items-center bg-slate-50 p-2.5 rounded-md border border-slate-100">
+                  <span className="text-slate-500 text-xs font-medium">Último Heartbeat</span>
+                  <span className="text-slate-700 text-[10px] font-mono">{lastHeartbeat}</span>
                 </div>
-                <div className="flex justify-between items-center bg-zinc-950/50 p-3.5 rounded-2xl border border-zinc-800/50">
-                  <span className="text-zinc-500 text-sm">Conector 1</span>
-                  <span className={`text-sm font-bold px-3 py-1 rounded-full border ${connector?.status === 'Charging' ? 'bg-blue-950/30 text-brand-blue border-brand-blue/30' : 'bg-zinc-800/50 text-zinc-400 border-zinc-700/50'}`}>
+                <div className="flex justify-between items-center bg-slate-50 p-2.5 rounded-md border border-slate-100">
+                  <span className="text-slate-500 text-xs font-medium">Conector 1</span>
+                  <span className={`text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full border ${connector?.status === 'Charging' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-slate-100 text-slate-500 border-slate-200'}`}>
                      {connector?.status || 'Desconhecido'}
                   </span>
                 </div>
@@ -119,15 +122,15 @@ export default function CommandsView() {
         {/* Commands Grid */}
         <div className="lg:col-span-2">
           {!selectedCharger ? (
-            <div className="h-64 flex flex-col items-center justify-center border border-zinc-800/50 rounded-3xl border-dashed">
-              <Zap className="h-8 w-8 text-zinc-600 mb-3" />
-              <p className="text-zinc-500">Selecione um carregador para ver os comandos</p>
+            <div className="h-48 flex flex-col items-center justify-center border border-slate-200 rounded-xl border-dashed bg-white">
+              <Zap className="h-6 w-6 text-slate-300 mb-2" />
+              <p className="text-slate-500 text-sm">Selecione um carregador para ver os comandos</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               
               <CommandCard 
-                icon={<Play className="h-5 w-5" />}
+                icon={<Play className="h-4 w-4" />}
                 title="Iniciar Recarga"
                 description="RemoteStartTransaction"
                 active={isOnline}
@@ -139,7 +142,7 @@ export default function CommandsView() {
               />
               
               <CommandCard 
-                icon={<Square className="h-5 w-5" />}
+                icon={<Square className="h-4 w-4" />}
                 title="Parar Recarga"
                 description="RemoteStopTransaction"
                 active={isOnline}
@@ -152,7 +155,7 @@ export default function CommandsView() {
               />
               
               <CommandCard 
-                icon={<RefreshCw className="h-5 w-5" />}
+                icon={<RefreshCw className="h-4 w-4" />}
                 title="Reset Soft"
                 description="Reinicia o sistema operacional"
                 active={isOnline}
@@ -164,7 +167,7 @@ export default function CommandsView() {
               />
               
               <CommandCard 
-                icon={<PowerOff className="h-5 w-5" />}
+                icon={<PowerOff className="h-4 w-4" />}
                 title="Reset Hard"
                 description="Reinício forçado de energia"
                 active={isOnline}
@@ -177,7 +180,7 @@ export default function CommandsView() {
               />
               
               <CommandCard 
-                icon={<Unlock className="h-5 w-5" />}
+                icon={<Unlock className="h-4 w-4" />}
                 title="Desbloquear Conector"
                 description="UnlockConnector (Em breve)"
                 active={isOnline}
@@ -186,7 +189,7 @@ export default function CommandsView() {
               />
               
               <CommandCard 
-                icon={<Settings className="h-5 w-5" />}
+                icon={<Settings className="h-4 w-4" />}
                 title="Alterar Disponibilidade"
                 description="ChangeAvailability (Em breve)"
                 active={isOnline}
@@ -195,7 +198,7 @@ export default function CommandsView() {
               />
               
               <CommandCard 
-                icon={<Settings className="h-5 w-5" />}
+                icon={<Settings className="h-4 w-4" />}
                 title="Obter Configuração"
                 description="GetConfiguration (Em breve)"
                 active={isOnline}
@@ -204,7 +207,7 @@ export default function CommandsView() {
               />
               
               <CommandCard 
-                icon={<RefreshCw className="h-5 w-5" />}
+                icon={<RefreshCw className="h-4 w-4" />}
                 title="Limpar Cache"
                 description="ClearCache (Em breve)"
                 active={isOnline}
@@ -229,27 +232,29 @@ export default function CommandsView() {
   );
 }
 
+import { Terminal } from 'lucide-react';
+
 function CommandCard({ icon, title, description, active, danger, pending, onClick }: any) {
-  let baseClasses = "flex flex-col p-6 rounded-3xl border transition-all duration-200 text-left relative overflow-hidden ";
+  let baseClasses = "flex flex-col p-4 rounded-xl border transition-all duration-200 text-left relative overflow-hidden ";
   
   if (!active || pending) {
-    baseClasses += "bg-zinc-900/30 border-zinc-800/40 opacity-60 cursor-not-allowed";
+    baseClasses += "bg-slate-50 border-slate-100 opacity-60 cursor-not-allowed";
   } else if (danger) {
-    baseClasses += "bg-red-950/10 border-red-900/30 hover:bg-red-950/30 hover:border-red-500/30 cursor-pointer";
+    baseClasses += "bg-red-50 border-red-200 hover:bg-red-100 hover:border-red-300 cursor-pointer";
   } else {
-    baseClasses += "bg-zinc-900/50 border-zinc-800 hover:bg-zinc-800/80 hover:border-zinc-700 cursor-pointer";
+    baseClasses += "bg-white border-slate-200 hover:bg-slate-50 hover:border-brand-blue/30 cursor-pointer shadow-sm";
   }
 
   return (
     <button className={baseClasses} onClick={!(active && !pending) ? undefined : onClick} disabled={!active || pending}>
-      <div className={`h-10 w-10 rounded-full flex items-center justify-center mb-4 ${danger && active && !pending ? 'bg-red-500/20 text-brand-red' : 'bg-zinc-800 text-zinc-300'}`}>
+      <div className={`h-8 w-8 rounded-md flex items-center justify-center mb-3 ${danger && active && !pending ? 'bg-red-100 text-red-600' : 'bg-brand-blue/10 text-brand-blue'}`}>
         {icon}
       </div>
-      <h3 className={`font-semibold text-lg ${danger && active && !pending ? 'text-brand-red' : 'text-white'}`}>{title}</h3>
-      <p className="text-zinc-500 text-sm mt-1">{description}</p>
+      <h3 className={`font-semibold text-sm ${danger && active && !pending ? 'text-red-700' : 'text-slate-800'}`}>{title}</h3>
+      <p className="text-slate-500 text-xs mt-1">{description}</p>
       
       {pending && (
-        <span className="absolute top-4 right-4 bg-zinc-800 text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded text-zinc-400">
+        <span className="absolute top-3 right-3 bg-slate-100 text-[9px] uppercase tracking-wider font-semibold px-1.5 py-0.5 rounded text-slate-500">
           Backend Pendente
         </span>
       )}
