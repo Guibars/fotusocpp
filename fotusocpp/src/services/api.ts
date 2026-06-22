@@ -49,27 +49,25 @@ export async function getSessions(): Promise<any[] | null> {
   return null;
 }
 
-export async function startCharging(chargerId: string, connectorId: number = 1, idTag: string = "ADMIN"): Promise<{ success: boolean; message?: string }> {
+export async function startCharging(chargerId: string, connectorId: number = 1, idTag: string = "ADMIN"): Promise<any> {
   try {
     const res = await fetch(`${BACKEND_URL}/api/chargers/${chargerId}/remote-start`, { 
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ connectorId, idTag })
     });
+    const data = await res.json().catch(() => null);
     if (!res.ok) {
-      const data = await res.json().catch(() => null);
-      if (res.status === 400 || res.status === 404) {
-         return { success: false, message: data?.error || 'Could not start charging.' };
-      }
+       return { success: false, message: data?.error || 'Could not start charging.' };
     }
-    return { success: res.ok };
+    return data || { success: true };
   } catch (e) {
     console.warn("Action failed", e);
     return { success: false, message: 'Connection failed' };
   }
 }
 
-export async function stopCharging(chargerId: string, transactionId?: number): Promise<{ success: boolean; message?: string }> {
+export async function stopCharging(chargerId: string, transactionId?: number): Promise<any> {
   try {
     const body: any = {};
     if (transactionId) body.transactionId = transactionId;
@@ -79,35 +77,29 @@ export async function stopCharging(chargerId: string, transactionId?: number): P
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
     });
+    const data = await res.json().catch(() => null);
     if (!res.ok) {
-      const data = await res.json().catch(() => null);
-      if (res.status === 400 || res.status === 404) {
-         return { success: false, message: data?.error || 'Nenhuma transação ativa encontrada para este carregador.' };
-      }
-      return { success: false, message: 'Falha ao parar carregamento. ' + (data?.error || '') };
+       return { success: false, message: data?.error || 'Falha ao parar carregamento.' };
     }
-    return { success: res.ok };
+    return data || { success: true };
   } catch (e) {
     console.warn("Action failed", e);
     return { success: false, message: 'Connection failed' };
   }
 }
 
-export async function resetCharger(chargerId: string, type: 'Soft' | 'Hard' = 'Soft'): Promise<{ success: boolean; message?: string }> {
+export async function resetCharger(chargerId: string, type: 'Soft' | 'Hard' = 'Soft'): Promise<any> {
   try {
     const res = await fetch(`${BACKEND_URL}/api/chargers/${chargerId}/reset`, { 
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type })
     });
+    const data = await res.json().catch(() => null);
     if (!res.ok) {
-      const data = await res.json().catch(() => null);
-      if (res.status === 400 || res.status === 404) {
-         return { success: false, message: data?.error || 'Nenhuma transação ativa encontrada para este carregador.' };
-      }
-      return { success: false, message: 'Falha ao parar carregamento. ' + (data?.error || '') };
+       return { success: false, message: data?.error || 'Falha ao resetar o carregador.' };
     }
-    return { success: res.ok };
+    return data || { success: true };
   } catch (e) {
     console.warn("Action failed", e);
     return { success: false, message: 'Connection failed' };
@@ -293,6 +285,155 @@ export async function getCurrentTariff(): Promise<any | null> {
     if (res.ok) return await res.json();
   } catch (e) {}
   return null;
+}
+
+export async function updateCurrentTariff(pricePerKwh: number, name: string): Promise<any> {
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/tariffs/current`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pricePerKwh, name })
+    });
+    return await res.json();
+  } catch (e) {
+    return { success: false, error: 'Connection failed' };
+  }
+}
+
+export async function getTariffEstimate(energyKwh: number): Promise<any | null> {
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/tariffs/estimate?energyKwh=${energyKwh}`);
+    if (res.ok) return await res.json();
+  } catch (e) {}
+  return null;
+}
+
+export async function getCommandResultByMessageId(messageId: string): Promise<any | null> {
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/command-results/${messageId}`);
+    if (res.ok) return await res.json();
+  } catch (e) {}
+  return null;
+}
+
+export async function reserveNow(chargerId: string, connectorId: number, idTag: string): Promise<any> {
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/chargers/${chargerId}/reserve-now`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ connectorId, idTag })
+    });
+    return await res.json();
+  } catch (e) {
+    return { success: false, error: 'Connection failed' };
+  }
+}
+
+export async function cancelReservation(chargerId: string, reservationId: number): Promise<any> {
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/chargers/${chargerId}/cancel-reservation`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reservationId })
+    });
+    return await res.json();
+  } catch (e) {
+    return { success: false, error: 'Connection failed' };
+  }
+}
+
+export async function getDiagnostics(chargerId: string, location: string): Promise<any> {
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/chargers/${chargerId}/get-diagnostics`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ location })
+    });
+    return await res.json();
+  } catch (e) {
+    return { success: false, error: 'Connection failed' };
+  }
+}
+
+export async function updateFirmware(chargerId: string, location: string): Promise<any> {
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/chargers/${chargerId}/update-firmware`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ location })
+    });
+    return await res.json();
+  } catch (e) {
+    return { success: false, error: 'Connection failed' };
+  }
+}
+
+export async function dataTransfer(chargerId: string, vendorId: string, messageId: string, data: string): Promise<any> {
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/chargers/${chargerId}/data-transfer`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ vendorId, messageId, data })
+    });
+    return await res.json();
+  } catch (e) {
+    return { success: false, error: 'Connection failed' };
+  }
+}
+
+export async function getLocalListVersion(chargerId: string): Promise<any> {
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/chargers/${chargerId}/get-local-list-version`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({})
+    });
+    return await res.json();
+  } catch (e) {
+    return { success: false, error: 'Connection failed' };
+  }
+}
+
+export async function sendLocalList(chargerId: string, listVersion: number, updateType: string, localAuthorizationList: any[]): Promise<any> {
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/chargers/${chargerId}/send-local-list`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ listVersion, updateType, localAuthorizationList })
+    });
+    return await res.json();
+  } catch (e) {
+    return { success: false, error: 'Connection failed' };
+  }
+}
+
+export async function clearChargingProfile(chargerId: string, connectorId?: number, chargingProfilePurpose?: string): Promise<any> {
+  try {
+    const body: any = {};
+    if (connectorId !== undefined) body.connectorId = connectorId;
+    if (chargingProfilePurpose !== undefined) body.chargingProfilePurpose = chargingProfilePurpose;
+    const res = await fetch(`${BACKEND_URL}/api/chargers/${chargerId}/clear-charging-profile`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    return await res.json();
+  } catch (e) {
+    return { success: false, error: 'Connection failed' };
+  }
+}
+
+export async function getCompositeSchedule(chargerId: string, connectorId: number, duration: number): Promise<any> {
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/chargers/${chargerId}/get-composite-schedule`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ connectorId, duration })
+    });
+    return await res.json();
+  } catch (e) {
+    return { success: false, error: 'Connection failed' };
+  }
 }
 
 export async function getMeterValues(): Promise<any[] | null> {

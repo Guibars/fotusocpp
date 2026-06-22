@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getEvents } from '../services/api';
 import { OcppEvent } from '../types';
-import { RefreshCcw, Code, ArrowRightLeft, Search, Activity } from 'lucide-react';
+import { RefreshCcw, Code, ArrowRightLeft, Search, Activity, Cpu, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
 
 export default function LogsView() {
   const [logs, setLogs] = useState<OcppEvent[]>([]);
@@ -30,50 +30,54 @@ export default function LogsView() {
   });
 
   return (
-    <div className="flex-1 overflow-y-auto px-6 md:px-8 py-8 custom-scrollbar relative z-10 w-full h-full text-slate-800">
+    <div className="flex-1 overflow-y-auto px-6 md:px-8 py-8 custom-scrollbar relative z-10 w-full h-full text-slate-800 bg-[#f4f7fc]">
       
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 flex items-center gap-2">
-            <Activity className="h-6 w-6 text-brand-blue" />
-            Logs OCPP
+          <h1 className="text-3xl font-extrabold tracking-tight text-[#0e467f] flex items-center gap-3">
+            <Activity className="h-7 w-7 text-brand-yellow animate-pulse" />
+            Logs de Barramento
           </h1>
-          <p className="text-sm text-slate-500 mt-1">Tráfego bruto da comunicação websocket</p>
+          <p className="text-sm font-medium text-slate-500 mt-1">Tráfego de frames OCPP brutos e callbacks em tempo real</p>
         </div>
-        <button onClick={loadData} className="flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded-md hover:bg-slate-50 transition-colors text-sm font-medium text-slate-700 shadow-sm">
-          <RefreshCcw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
-          Atualizar
+        <button 
+          onClick={loadData} 
+          className="flex items-center gap-2 px-4 py-2 bg-white border border-[#e2e8f0] text-slate-700 hover:text-[#0e467f] hover:bg-[#f4f7fc] rounded-full transition-all text-sm font-semibold shadow-sm hover:shadow active:scale-95"
+        >
+          <RefreshCcw className={`h-4 w-4 text-[#0e467f] ${loading ? 'animate-spin' : ''}`} />
+          Sincronizar
         </button>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-3 mb-6">
+      <div className="flex flex-col lg:flex-row gap-4 mb-8">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <input 
             type="text" 
-            placeholder="Filtrar por ID do Carregador..." 
+            placeholder="Filtrar por nome da estação..." 
             value={filterCharger}
             onChange={e => setFilterCharger(e.target.value)}
-            className="w-full bg-white border border-slate-200 text-slate-800 rounded-md py-2 pl-9 pr-3 text-sm focus:outline-none focus:border-brand-blue focus:ring-1 focus:ring-brand-blue"
+            className="w-full bg-white border border-slate-200 text-slate-800 rounded-2xl py-3 pl-11 pr-4 text-sm font-bold focus:outline-none focus:border-[#0e467f] focus:ring-1 focus:ring-[#0e467f] shadow-sm transition-all placeholder-slate-400"
           />
         </div>
         <div className="relative flex-1">
-          <Code className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <Code className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <input 
             type="text" 
-            placeholder="Filtrar por Ação (ex: Heartbeat)..." 
+            placeholder="Filtrar por ação (Ex: Transação)..." 
             value={filterAction}
             onChange={e => setFilterAction(e.target.value)}
-            className="w-full bg-white border border-slate-200 text-slate-800 rounded-md py-2 pl-9 pr-3 text-sm focus:outline-none focus:border-brand-blue focus:ring-1 focus:ring-brand-blue"
+            className="w-full bg-white border border-slate-200 text-slate-800 rounded-2xl py-3 pl-11 pr-4 text-sm font-bold focus:outline-none focus:border-[#0e467f] focus:ring-1 focus:ring-[#0e467f] shadow-sm transition-all placeholder-slate-400"
           />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-3">
+      <div className="grid grid-cols-1 gap-4">
         {filteredLogs.length === 0 && !loading ? (
-          <div className="py-12 flex flex-col items-center justify-center bg-white border border-slate-200 rounded-xl border-dashed">
-            <ArrowRightLeft className="h-6 w-6 text-slate-300 mb-2" />
-            <p className="text-slate-500 text-sm">Nenhum evento registrado.</p>
+          <div className="py-16 flex flex-col items-center justify-center bg-white border border-slate-200 rounded-[2rem] border-dashed p-8 shadow-sm">
+            <ArrowRightLeft className="h-10 w-10 text-slate-300 mb-3" />
+            <p className="text-slate-500 font-bold">Nenhum evento detectado</p>
+            <p className="text-xs text-slate-400 text-center mt-1">Aguardando telemetrias ou verifique o filtro selecionado</p>
           </div>
         ) : (
           filteredLogs.map((log, idx) => {
@@ -85,19 +89,25 @@ export default function LogsView() {
             }
 
             return (
-              <div key={log.id || idx} className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-                <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3">
+              <div key={log.id || idx} className="bg-white border border-slate-200 rounded-[2rem] overflow-hidden shadow-sm hover:shadow-md transition-all">
+                <div className="px-6 py-4 bg-slate-50/70 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <span className={`text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full ${isOut ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : 'bg-green-50 text-green-700 border border-green-200'}`}>
+                    <span className={`text-[9px] uppercase font-extrabold tracking-wider px-3 py-1 rounded-full border flex items-center gap-1 ${isOut ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-green-50 text-green-700 border-green-200'}`}>
+                      {isOut ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownLeft className="h-3 w-3" />}
                       {log.direction || 'IN'}
                     </span>
-                    <span className="font-semibold text-slate-800 text-sm">{log.action || 'Unknown'}</span>
-                    <span className="text-xs font-mono text-slate-500 border-l border-slate-200 pl-3">{log.charge_point_id}</span>
+                    <span className="font-extrabold text-[#0e467f] text-sm">{log.action || 'Desconhecido'}</span>
+                    <span className="text-[10px] font-mono font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">{log.charge_point_id}</span>
                   </div>
-                  <span className="text-[10px] font-mono text-slate-400">{timestamp}</span>
+                  
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-mono font-bold text-slate-400">{timestamp}</span>
+                    <Cpu className="h-3.5 w-3.5 text-slate-300" />
+                  </div>
                 </div>
-                <div className="p-4 bg-white overflow-x-auto text-[11px] font-mono text-slate-600">
-                  <pre>{JSON.stringify(parsedPayload, null, 2)}</pre>
+                
+                <div className="p-6 bg-slate-900 overflow-x-auto text-xs font-mono text-slate-300 shadow-inner">
+                  <pre className="whitespace-pre-wrap leading-relaxed">{JSON.stringify(parsedPayload, null, 2)}</pre>
                 </div>
               </div>
             );
