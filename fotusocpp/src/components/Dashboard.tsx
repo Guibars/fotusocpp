@@ -86,7 +86,7 @@ export default function Dashboard() {
         <div className="mb-7 grid gap-6 rounded-[2.25rem] bg-[#e3e4e9] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.72)] sm:p-7 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Operacao em tempo real</p>
-            <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-950 sm:text-5xl">Bom dia, Fotus!</h2>
+            <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-950 sm:text-5xl">Olá, João!</h2>
             <p className="mt-3 max-w-2xl text-base font-medium leading-7 text-slate-600">
               Dados lidos do backend OCPP: carregadores, conectores, sessoes, tarifa atual e eventos recentes.
             </p>

@@ -158,11 +158,11 @@ export default function App() {
 function BrandBlock({ collapsed, onToggle }: { collapsed: boolean; onToggle: () => void }) {
   return (
     <div className={`relative ${collapsed ? 'px-3 py-5' : 'px-5 py-7'}`}>
-      <div className={`flex items-center ${collapsed ? 'justify-center' : 'justify-between gap-3'}`}>
+      <div className={`flex ${collapsed ? 'flex-col items-center gap-3' : 'items-center justify-between gap-3'}`}>
         <BrandMark collapsed={collapsed} />
         <button
           onClick={onToggle}
-          className={`expressive-control group shrink-0 text-[#0e467f] ${collapsed ? 'absolute left-[72px] top-4 z-10 shadow-lg' : ''}`}
+          className="expressive-control group shrink-0 text-slate-950"
           aria-label={collapsed ? 'Expandir menu lateral' : 'Minimizar menu lateral'}
           title={collapsed ? 'Expandir menu' : 'Minimizar menu'}
         >
@@ -234,7 +234,7 @@ function NavItem({
       }`}
     >
       <span
-        className={`expressive-nav-icon ${shape} ${
+        className={`expressive-nav-icon ${shape} ${active ? 'nav-icon-active' : ''} ${
           active
             ? 'bg-slate-950 text-[#d9f96e] shadow-[0_12px_24px_rgba(15,23,42,0.22)]'
             : 'bg-white/80 text-slate-500 shadow-sm ring-1 ring-white/70 group-hover:bg-white group-hover:text-slate-950'
