@@ -15,7 +15,7 @@
 }
 
 body {
-  @apply bg-[#f4f7fc] text-slate-800 antialiased min-h-screen selection:bg-brand-blue/20 selection:text-brand-blue;
+  @apply bg-[#f4f3f1] text-slate-800 antialiased min-h-screen selection:bg-brand-blue/20 selection:text-brand-blue;
   color-scheme: light;
 }
 
@@ -38,6 +38,19 @@ body {
 /* Base custom classes to support the glass-panel logic in case we want to reuse it, but making it light */
 @utility glass-panel {
   @apply bg-white shadow-sm border border-slate-200;
+}
+
+.crm-app-shell {
+  background:
+    radial-gradient(circle at 8% 100%, rgba(177, 163, 255, 0.46), transparent 25%),
+    linear-gradient(135deg, #d9dbe2 0%, #f1f1f3 55%, #e5e6eb 100%);
+  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.13);
+}
+
+@media (min-width: 1024px) {
+  .crm-app-shell {
+    border-radius: 2.25rem;
+  }
 }
 
 .expressive-control {
