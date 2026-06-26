@@ -1,217 +1,250 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
 import React, { useState } from 'react';
+import {
+  Activity,
+  BarChart3,
+  Clock,
+  Gauge,
+  Layers,
+  Menu,
+  ReceiptText,
+  Server,
+  Settings,
+  Terminal,
+  X,
+} from 'lucide-react';
 import Dashboard from './components/Dashboard';
 import CommandsView from './views/CommandsView';
 import SessionsView from './views/SessionsView';
 import LogsView from './views/LogsView';
-import OcppLabView from './views/OcppLabView';
 import TariffsView from './views/TariffsView';
 import MeterValuesView from './views/MeterValuesView';
-import { 
-  Layers, 
-  Terminal, 
-  Clock, 
-  Activity, 
-  Settings, 
-  FlaskConical, 
-  DollarSign, 
-  PlugZap,
-  Cpu,
-  MonitorCheck
-} from 'lucide-react';
+import { getBackendHost } from './services/api';
+
+type ViewId = 'dashboard' | 'commands' | 'sessions' | 'meters' | 'tariffs' | 'logs' | 'settings';
+
+const views: Array<{ id: ViewId; label: string; icon: React.ReactNode }> = [
+  { id: 'dashboard', label: 'Operacao', icon: <Layers className="h-4 w-4" /> },
+  { id: 'commands', label: 'Comandos', icon: <Terminal className="h-4 w-4" /> },
+  { id: 'sessions', label: 'Sessoes', icon: <Clock className="h-4 w-4" /> },
+  { id: 'meters', label: 'Telemetria', icon: <Gauge className="h-4 w-4" /> },
+  { id: 'tariffs', label: 'Tarifas', icon: <ReceiptText className="h-4 w-4" /> },
+  { id: 'logs', label: 'Logs', icon: <Activity className="h-4 w-4" /> },
+];
 
 export default function App() {
-  const [currentView, setCurrentView] = useState('dashboard');
+  const [currentView, setCurrentView] = useState<ViewId>('dashboard');
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
+  const navigate = (view: ViewId) => {
+    setCurrentView(view);
+    setMobileNavOpen(false);
+  };
 
   return (
-    <div className="flex h-screen bg-[#f4f7fc] overflow-hidden font-sans text-slate-800 relative select-none">
-      
-      {/* Side Navigation - Material Expressive 3 Drawers */}
-      <aside className="w-68 border-r border-[#e2e8f0] bg-white flex flex-col py-8 z-20 shrink-0 shadow-[4px_0_24px_rgba(14,70,127,0.015)]">
-        
-        {/* Header - Only the Fotus Charge Logo */}
-        <div className="flex items-center justify-center w-full mb-10 px-6">
-          <img 
-            src="https://res.cloudinary.com/ddtpuucfi/image/upload/v1778251202/ChatGPT_Image_23_de_abr._de_2026__13_34_41-removebg-preview_1_rjedu4.png" 
-            alt="Fotus Charge" 
-            className="h-12 w-auto object-contain shrink-0 filter brightness-100 hover:scale-105 transition-transform duration-300"
-            style={{ filter: 'brightness(0) saturate(100%) invert(20%) sepia(87%) saturate(1516%) hue-rotate(193deg) brightness(97%) contrast(106%)' }} // #0e467f brand color
-          />
-        </div>
+    <div className="min-h-screen bg-slate-100 text-slate-900">
+      <div className="flex min-h-screen">
+        <aside className="hidden lg:flex w-64 shrink-0 flex-col border-r border-slate-200 bg-white">
+          <BrandBlock />
+          <nav className="flex-1 px-3 py-4">
+            {views.map(view => (
+              <NavItem
+                key={view.id}
+                icon={view.icon}
+                label={view.label}
+                active={currentView === view.id}
+                onClick={() => navigate(view.id)}
+              />
+            ))}
+          </nav>
+          <div className="border-t border-slate-200 p-3">
+            <NavItem
+              icon={<Settings className="h-4 w-4" />}
+              label="Sistema"
+              active={currentView === 'settings'}
+              onClick={() => navigate('settings')}
+            />
+          </div>
+        </aside>
 
-        {/* M3 Active-Indicator Navigation Pills */}
-        <nav className="flex flex-col gap-2 w-full px-4 overflow-y-auto custom-scrollbar">
-          <NavItem 
-            icon={<Layers className="h-5 w-5" />} 
-            label="Dashboard Geral" 
-            active={currentView === 'dashboard'} 
-            onClick={() => setCurrentView('dashboard')}
-          />
-          <NavItem 
-            icon={<Terminal className="h-5 w-5" />} 
-            label="Comandos OCPP" 
-            active={currentView === 'commands'} 
-            onClick={() => setCurrentView('commands')}
-          />
-          <NavItem 
-            icon={<FlaskConical className="h-5 w-5" />} 
-            label="Laboratório Especial" 
-            active={currentView === 'lab'} 
-            onClick={() => setCurrentView('lab')}
-          />
-          <NavItem 
-            icon={<Clock className="h-5 w-5" />} 
-            label="Sessões Realizadas" 
-            active={currentView === 'sessions'} 
-            onClick={() => setCurrentView('sessions')}
-          />
-          <NavItem 
-            icon={<PlugZap className="h-5 w-5" />} 
-            label="Medições / Telemetria" 
-            active={currentView === 'meters'} 
-            onClick={() => setCurrentView('meters')}
-          />
-          <NavItem 
-            icon={<DollarSign className="h-5 w-5" />} 
-            label="Configurar Tarifas" 
-            active={currentView === 'tariffs'} 
-            onClick={() => setCurrentView('tariffs')}
-          />
-          <NavItem 
-            icon={<Activity className="h-5 w-5" />} 
-            label="Logs de Sistema" 
-            active={currentView === 'logs'} 
-            onClick={() => setCurrentView('logs')}
-          />
-        </nav>
+        {mobileNavOpen && (
+          <div className="fixed inset-0 z-40 bg-slate-950/40 lg:hidden" onClick={() => setMobileNavOpen(false)} />
+        )}
 
-        {/* Bottom Config Section */}
-        <div className="mt-auto w-full px-4 pt-4 border-t border-slate-100">
-           <NavItem 
-            icon={<Settings className="h-5 w-5" />} 
-            label="Configurações" 
-            active={currentView === 'settings'} 
-            onClick={() => setCurrentView('settings')}
-          />
-        </div>
-      </aside>
+        <aside
+          className={`fixed inset-y-0 left-0 z-50 w-72 transform border-r border-slate-200 bg-white transition-transform lg:hidden ${
+            mobileNavOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
+        >
+          <div className="flex items-center justify-between border-b border-slate-200 px-4 py-4">
+            <BrandMark />
+            <button
+              onClick={() => setMobileNavOpen(false)}
+              className="grid h-9 w-9 place-items-center rounded-lg border border-slate-200 text-slate-600"
+              aria-label="Fechar menu"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+          <nav className="px-3 py-4">
+            {views.map(view => (
+              <NavItem
+                key={view.id}
+                icon={view.icon}
+                label={view.label}
+                active={currentView === view.id}
+                onClick={() => navigate(view.id)}
+              />
+            ))}
+            <NavItem
+              icon={<Settings className="h-4 w-4" />}
+              label="Sistema"
+              active={currentView === 'settings'}
+              onClick={() => navigate('settings')}
+            />
+          </nav>
+        </aside>
 
-      {/* Main Content Area */}
-      <main className="flex-1 flex flex-col h-full overflow-hidden relative bg-[#f4f7fc]">
-        
-        {/* Core View Switchers with smooth entry background animations */}
-        <div className="flex-1 h-full w-full relative overflow-hidden flex flex-col">
-          {currentView === 'dashboard' && <Dashboard />}
-          {currentView === 'commands' && <CommandsView />}
-          {currentView === 'lab' && <OcppLabView />}
-          {currentView === 'sessions' && <SessionsView />}
-          {currentView === 'meters' && <MeterValuesView />}
-          {currentView === 'tariffs' && <TariffsView />}
-          {currentView === 'logs' && <LogsView />}
-          {currentView === 'settings' && (
-            <div className="p-8 md:p-10 flex-1 overflow-y-auto w-full">
-              <span className="text-xs font-bold text-slate-400 tracking-widest uppercase block mb-1">Painel Administrativo</span>
-              <h1 className="text-3xl font-extrabold tracking-tight text-[#0e467f] font-display mb-2">Configurações</h1>
-              <p className="text-slate-500 mb-8 text-sm font-medium">Gerenciamento global de parâmetros de conformidade e credenciais do barramento OCPP.</p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl">
-                <div className="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm">
-                  <h3 className="font-bold text-lg text-slate-800 mb-4 font-display flex items-center gap-2">
-                    <Cpu className="h-5 w-5 text-[#0e467f]" />
-                    Conectividade OCPP
-                  </h3>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">URL Base do WebSocket (WSS)</label>
-                      <input 
-                        type="text" 
-                        value="wss://ocpp-backend-production.up.railway.app" 
-                        disabled
-                        className="w-full bg-slate-50 text-slate-600 border border-slate-200 rounded-xl px-4 py-2.5 font-mono text-xs font-bold"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Status do Servidor Central</label>
-                      <div className="flex items-center gap-2 text-green-700 bg-green-50 px-3 pl-2.5 py-1.5 rounded-xl border border-green-100 w-fit text-xs font-bold uppercase tracking-wider">
-                        <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
-                        Operacional
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white p-6 rounded-[2rem] border border-[#0e467f]/10 shadow-sm relative overflow-hidden flex flex-col justify-between">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-brand-yellow/10 rounded-full blur-xl pointer-events-none"></div>
-                  <div>
-                    <h3 className="font-bold text-lg text-[#0e467f] mb-4 font-display flex items-center gap-2">
-                      <MonitorCheck className="h-5 w-5 text-[#fab515]" />
-                      Taxas de Atualização
-                    </h3>
-                    <div className="space-y-3 text-xs text-slate-600">
-                      <div className="flex justify-between items-center py-2 border-b border-slate-100 font-semibold">
-                        <span>Frequência de Polling</span>
-                        <span className="font-bold text-emerald-600 font-mono bg-emerald-50 px-2.5 py-0.5 rounded-full">Alta Frequência (2.0s)</span>
-                      </div>
-                      <div className="flex justify-between items-center py-2 border-b border-slate-100 font-semibold">
-                        <span>Versão Integrada</span>
-                        <span className="font-bold text-slate-800">OCPP 1.6 JSON</span>
-                      </div>
-                      <div className="flex justify-between items-center py-2 font-semibold">
-                        <span>Localização Global</span>
-                        <span className="font-bold text-slate-850">Português (Brasil)</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+        <main className="flex min-w-0 flex-1 flex-col">
+          <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200 bg-white/95 px-4 backdrop-blur lg:px-8">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setMobileNavOpen(true)}
+                className="grid h-9 w-9 place-items-center rounded-lg border border-slate-200 text-slate-600 lg:hidden"
+                aria-label="Abrir menu"
+              >
+                <Menu className="h-4 w-4" />
+              </button>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Fotus Charge CRM</p>
+                <h1 className="text-base font-bold text-slate-950 sm:text-lg">
+                  {currentView === 'settings' ? 'Sistema' : views.find(view => view.id === currentView)?.label}
+                </h1>
               </div>
             </div>
-          )}
-        </div>
-      </main>
+            <div className="hidden items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-600 sm:flex">
+              <Server className="h-4 w-4 text-[#0e467f]" />
+              {getBackendHost()}
+            </div>
+          </header>
 
+          <div className="min-h-0 flex-1 overflow-hidden">
+            {currentView === 'dashboard' && <Dashboard />}
+            {currentView === 'commands' && <CommandsView />}
+            {currentView === 'sessions' && <SessionsView />}
+            {currentView === 'meters' && <MeterValuesView />}
+            {currentView === 'tariffs' && <TariffsView />}
+            {currentView === 'logs' && <LogsView />}
+            {currentView === 'settings' && <SettingsView />}
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
 
-// Subcomponent: NavItem utilizing Google Material 3 Visual Expressive Language
-function NavItem({ icon, label, active, onClick }: { icon: React.ReactNode, label: string, active: boolean, onClick: () => void }) {
+function BrandBlock() {
   return (
-    <button 
+    <div className="border-b border-slate-200 px-5 py-5">
+      <BrandMark />
+      <div className="mt-5 grid grid-cols-2 gap-2">
+        <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Stack</p>
+          <p className="mt-1 text-sm font-bold text-slate-950">OCPP 1.6-J</p>
+        </div>
+        <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Modo</p>
+          <p className="mt-1 text-sm font-bold text-emerald-800">Real</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function BrandMark() {
+  return (
+    <div className="flex items-center gap-3">
+      <div className="grid h-10 w-10 place-items-center rounded-lg bg-[#0e467f] text-[#fab515]">
+        <BarChart3 className="h-5 w-5" />
+      </div>
+      <div>
+        <p className="text-sm font-black tracking-tight text-[#0e467f]">Fotus Charge</p>
+        <p className="text-[11px] font-semibold text-slate-500">Operacao OCPP</p>
+      </div>
+    </div>
+  );
+}
+
+function NavItem({
+  icon,
+  label,
+  active,
+  onClick,
+}: {
+  key?: React.Key;
+  icon: React.ReactNode;
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
       onClick={onClick}
-      className={`relative w-full flex items-center px-3 py-2.5 h-12 rounded-2xl transition-all duration-300 group outline-none focus-visible:ring-2 focus-visible:ring-[#0e467f]/20 cursor-pointer ${
-        active 
-          ? 'bg-blue-50/70 text-[#0e467f]' 
-          : 'text-slate-600 hover:bg-slate-50 hover:text-[#0e467f]'
+      className={`mb-1 flex h-11 w-full items-center gap-3 rounded-lg px-3 text-sm font-semibold transition ${
+        active
+          ? 'bg-[#0e467f] text-white shadow-sm'
+          : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950'
       }`}
     >
-      {/* Active Indicator Bar - Left vertical line */}
-      <div className={`absolute left-0 top-3 bottom-3 w-1 rounded-r-md transition-all duration-300 ${
-        active ? 'bg-[#0e467f] scale-y-100' : 'bg-transparent scale-y-0'
-      }`}></div>
-
-      {/* M3 Icon Container (Pill Highlight) */}
-      <div className={`flex items-center justify-center h-9 w-11 rounded-xl transition-all duration-300 ${
-        active 
-          ? 'bg-[#0e467f] text-[#fab515] shadow-xs' 
-          : 'bg-transparent text-slate-500 group-hover:bg-slate-100 group-hover:text-[#0e467f]'
-      }`}>
-        {icon}
-      </div>
-
-      {/* Primary Label */}
-      <span className={`ml-3 text-xs font-bold tracking-wide font-display transition-colors ${
-        active ? 'text-[#0e467f]' : 'text-slate-600 group-hover:text-[#0e467f]'
-      }`}>
-        {label}
-      </span>
-
-      {/* Dynamic Solar Accent */}
-      {active && (
-        <span className="absolute right-3.5 h-2 w-2 rounded-full bg-[#fab515] shadow-xs animate-pulse"></span>
-      )}
+      <span className={active ? 'text-[#fab515]' : 'text-slate-500'}>{icon}</span>
+      {label}
     </button>
+  );
+}
+
+function SettingsView() {
+  return (
+    <div className="h-full overflow-y-auto p-4 sm:p-6 lg:p-8">
+      <section className="mx-auto max-w-5xl">
+        <div className="mb-6">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#0e467f]">Sistema</p>
+          <h2 className="mt-1 text-2xl font-black tracking-tight text-slate-950">Configuracao operacional</h2>
+          <p className="mt-2 max-w-2xl text-sm font-medium leading-6 text-slate-600">
+            O painel usa somente endpoints presentes no backend conectado. Recursos de simulacao e comandos sem rota foram removidos da navegacao.
+          </p>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="flex items-center gap-3">
+              <div className="grid h-10 w-10 place-items-center rounded-lg bg-blue-50 text-[#0e467f]">
+                <Server className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Backend API</p>
+                <p className="text-sm font-bold text-slate-950">{getBackendHost()}</p>
+              </div>
+            </div>
+            <div className="mt-4 rounded-lg bg-slate-50 p-3 font-mono text-xs font-semibold text-slate-600">
+              VITE_BACKEND_URL
+            </div>
+          </div>
+
+          <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="flex items-center gap-3">
+              <div className="grid h-10 w-10 place-items-center rounded-lg bg-emerald-50 text-emerald-700">
+                <Activity className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Superficie ativa</p>
+                <p className="text-sm font-bold text-slate-950">Operacao, comandos, tarifas, logs e telemetria</p>
+              </div>
+            </div>
+            <p className="mt-4 text-sm font-medium leading-6 text-slate-600">
+              As telas restantes leem ou escrevem no backend real; quando um carregador recusar um comando, a resposta volta pelo fluxo de resultados OCPP.
+            </p>
+          </div>
+        </div>
+      </section>
+    </div>
   );
 }
