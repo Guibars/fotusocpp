@@ -6,6 +6,8 @@ import {
   Gauge,
   Layers,
   Menu,
+  PanelLeftClose,
+  PanelLeftOpen,
   ReceiptText,
   Server,
   Settings,
@@ -22,18 +24,19 @@ import { getBackendHost } from './services/api';
 
 type ViewId = 'dashboard' | 'commands' | 'sessions' | 'meters' | 'tariffs' | 'logs' | 'settings';
 
-const views: Array<{ id: ViewId; label: string; icon: React.ReactNode }> = [
-  { id: 'dashboard', label: 'Operacao', icon: <Layers className="h-4 w-4" /> },
-  { id: 'commands', label: 'Comandos', icon: <Terminal className="h-4 w-4" /> },
-  { id: 'sessions', label: 'Sessoes', icon: <Clock className="h-4 w-4" /> },
-  { id: 'meters', label: 'Telemetria', icon: <Gauge className="h-4 w-4" /> },
-  { id: 'tariffs', label: 'Tarifas', icon: <ReceiptText className="h-4 w-4" /> },
-  { id: 'logs', label: 'Logs', icon: <Activity className="h-4 w-4" /> },
+const views: Array<{ id: ViewId; label: string; icon: React.ReactNode; shape: string }> = [
+  { id: 'dashboard', label: 'Operacao', icon: <Layers className="h-4 w-4" />, shape: 'shape-squircle' },
+  { id: 'commands', label: 'Comandos', icon: <Terminal className="h-4 w-4" />, shape: 'shape-arch' },
+  { id: 'sessions', label: 'Sessoes', icon: <Clock className="h-4 w-4" />, shape: 'shape-pill' },
+  { id: 'meters', label: 'Telemetria', icon: <Gauge className="h-4 w-4" />, shape: 'shape-blob' },
+  { id: 'tariffs', label: 'Tarifas', icon: <ReceiptText className="h-4 w-4" />, shape: 'shape-diamond' },
+  { id: 'logs', label: 'Logs', icon: <Activity className="h-4 w-4" />, shape: 'shape-soft' },
 ];
 
 export default function App() {
   const [currentView, setCurrentView] = useState<ViewId>('dashboard');
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const navigate = (view: ViewId) => {
     setCurrentView(view);
@@ -43,24 +46,32 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-100 text-slate-900">
       <div className="flex min-h-screen">
-        <aside className="hidden lg:flex w-64 shrink-0 flex-col border-r border-slate-200 bg-white">
-          <BrandBlock />
-          <nav className="flex-1 px-3 py-4">
+        <aside
+          className={`hidden shrink-0 flex-col border-r border-slate-200 bg-[#fbf8ff] transition-[width] duration-300 ease-out lg:flex ${
+            sidebarCollapsed ? 'w-[92px]' : 'w-64'
+          }`}
+        >
+          <BrandBlock collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(value => !value)} />
+          <nav className={`flex-1 py-4 ${sidebarCollapsed ? 'px-3' : 'px-4'}`}>
             {views.map(view => (
               <NavItem
                 key={view.id}
                 icon={view.icon}
+                shape={view.shape}
                 label={view.label}
                 active={currentView === view.id}
+                collapsed={sidebarCollapsed}
                 onClick={() => navigate(view.id)}
               />
             ))}
           </nav>
-          <div className="border-t border-slate-200 p-3">
+          <div className={`border-t border-slate-200 py-3 ${sidebarCollapsed ? 'px-3' : 'px-4'}`}>
             <NavItem
               icon={<Settings className="h-4 w-4" />}
+              shape="shape-soft"
               label="Sistema"
               active={currentView === 'settings'}
+              collapsed={sidebarCollapsed}
               onClick={() => navigate('settings')}
             />
           </div>
@@ -90,6 +101,7 @@ export default function App() {
               <NavItem
                 key={view.id}
                 icon={view.icon}
+                shape={view.shape}
                 label={view.label}
                 active={currentView === view.id}
                 onClick={() => navigate(view.id)}
@@ -97,6 +109,7 @@ export default function App() {
             ))}
             <NavItem
               icon={<Settings className="h-4 w-4" />}
+              shape="shape-soft"
               label="Sistema"
               active={currentView === 'settings'}
               onClick={() => navigate('settings')}
@@ -142,61 +155,101 @@ export default function App() {
   );
 }
 
-function BrandBlock() {
+function BrandBlock({ collapsed, onToggle }: { collapsed: boolean; onToggle: () => void }) {
   return (
-    <div className="border-b border-slate-200 px-5 py-5">
-      <BrandMark />
-      <div className="mt-5 grid grid-cols-2 gap-2">
-        <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Stack</p>
-          <p className="mt-1 text-sm font-bold text-slate-950">OCPP 1.6-J</p>
-        </div>
-        <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Modo</p>
-          <p className="mt-1 text-sm font-bold text-emerald-800">Real</p>
-        </div>
+    <div className={`relative border-b border-slate-200 ${collapsed ? 'px-3 py-4' : 'px-5 py-5'}`}>
+      <div className={`flex items-center ${collapsed ? 'justify-center' : 'justify-between gap-3'}`}>
+        <BrandMark collapsed={collapsed} />
+        <button
+          onClick={onToggle}
+          className={`expressive-control group shrink-0 text-[#0e467f] ${collapsed ? 'absolute left-[72px] top-4 z-10 shadow-lg' : ''}`}
+          aria-label={collapsed ? 'Expandir menu lateral' : 'Minimizar menu lateral'}
+          title={collapsed ? 'Expandir menu' : 'Minimizar menu'}
+        >
+          {collapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+        </button>
       </div>
+      {!collapsed && (
+        <div className="mt-5 grid grid-cols-2 gap-2">
+          <div className="rounded-[1.15rem_1.65rem_1.1rem_1.35rem] border border-slate-200 bg-white/80 p-3 shadow-sm">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Stack</p>
+            <p className="mt-1 text-sm font-bold text-slate-950">OCPP 1.6-J</p>
+          </div>
+          <div className="rounded-[1.6rem_1.15rem_1.45rem_1.1rem] border border-emerald-200 bg-emerald-50 p-3 shadow-sm">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Modo</p>
+            <p className="mt-1 text-sm font-bold text-emerald-800">Real</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-function BrandMark() {
+function BrandMark({ collapsed = false }: { collapsed?: boolean }) {
   return (
-    <div className="flex items-center gap-3">
-      <div className="grid h-10 w-10 place-items-center rounded-lg bg-[#0e467f] text-[#fab515]">
+    <div className={`flex items-center ${collapsed ? 'justify-center' : 'gap-3'}`}>
+      <div className="shape-blob grid h-11 w-11 place-items-center bg-[#0e467f] text-[#fab515] shadow-sm">
         <BarChart3 className="h-5 w-5" />
       </div>
-      <div>
-        <p className="text-sm font-black tracking-tight text-[#0e467f]">Fotus Charge</p>
-        <p className="text-[11px] font-semibold text-slate-500">Operacao OCPP</p>
-      </div>
+      {!collapsed && (
+        <div>
+          <p className="text-sm font-black tracking-tight text-[#0e467f]">Fotus Charge</p>
+          <p className="text-[11px] font-semibold text-slate-500">Operacao OCPP</p>
+        </div>
+      )}
     </div>
   );
 }
 
 function NavItem({
   icon,
+  shape,
   label,
   active,
+  collapsed = false,
   onClick,
 }: {
   key?: React.Key;
   icon: React.ReactNode;
+  shape: string;
   label: string;
   active: boolean;
+  collapsed?: boolean;
   onClick: () => void;
 }) {
   return (
     <button
       onClick={onClick}
-      className={`mb-1 flex h-11 w-full items-center gap-3 rounded-lg px-3 text-sm font-semibold transition ${
+      title={collapsed ? label : undefined}
+      className={`group mb-2 flex h-12 w-full items-center transition-all duration-200 ${
+        collapsed ? 'justify-center px-0' : 'gap-3 rounded-[1.45rem] px-2.5'
+      } ${
         active
-          ? 'bg-[#0e467f] text-white shadow-sm'
-          : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950'
+          ? collapsed
+            ? 'text-white'
+            : 'bg-[#0e467f] text-white shadow-sm'
+          : collapsed
+            ? 'text-slate-600'
+            : 'text-slate-600 hover:bg-white hover:text-slate-950 hover:shadow-sm'
       }`}
     >
-      <span className={active ? 'text-[#fab515]' : 'text-slate-500'}>{icon}</span>
-      {label}
+      <span
+        className={`expressive-nav-icon ${shape} ${
+          active
+            ? 'bg-[#0e467f] text-[#fab515] shadow-[0_10px_22px_rgba(14,70,127,0.22)]'
+            : 'bg-white text-slate-500 shadow-sm ring-1 ring-slate-200 group-hover:bg-[#f1ecff] group-hover:text-[#0e467f]'
+        }`}
+      >
+        {icon}
+      </span>
+      {!collapsed && (
+        <>
+          <span className={`min-w-0 flex-1 truncate text-left text-sm font-bold ${active ? 'text-white' : 'text-slate-700'}`}>
+            {label}
+          </span>
+          {active && <span className="h-2.5 w-2.5 rounded-full bg-[#fab515]" />}
+        </>
+      )}
     </button>
   );
 }

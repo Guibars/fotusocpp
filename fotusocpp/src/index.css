@@ -39,3 +39,58 @@ body {
 @utility glass-panel {
   @apply bg-white shadow-sm border border-slate-200;
 }
+
+.expressive-control {
+  display: grid;
+  height: 42px;
+  width: 42px;
+  place-items: center;
+  border: 1px solid rgb(226 232 240);
+  background: rgba(255, 255, 255, 0.86);
+  border-radius: 1.45rem 1.1rem 1.45rem 1.1rem;
+  transition: transform 180ms ease, background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.expressive-control:hover {
+  transform: translateY(-1px) scale(1.03);
+  border-color: rgba(14, 70, 127, 0.28);
+  background: #f1ecff;
+  box-shadow: 0 12px 26px rgba(14, 70, 127, 0.14);
+}
+
+.expressive-nav-icon {
+  display: grid;
+  height: 42px;
+  width: 42px;
+  flex-shrink: 0;
+  place-items: center;
+  transition: transform 180ms ease, border-radius 220ms ease, background-color 180ms ease, color 180ms ease, box-shadow 180ms ease;
+}
+
+.group:hover .expressive-nav-icon {
+  transform: translateY(-1px) scale(1.04);
+}
+
+.shape-squircle {
+  border-radius: 1.3rem;
+}
+
+.shape-arch {
+  border-radius: 1.45rem 1.45rem 1rem 1rem;
+}
+
+.shape-pill {
+  border-radius: 1.55rem 1.05rem 1.55rem 1.05rem;
+}
+
+.shape-blob {
+  border-radius: 1.55rem 1.05rem 1.35rem 1.2rem;
+}
+
+.shape-diamond {
+  border-radius: 1.15rem 1.55rem 1.15rem 1.55rem;
+}
+
+.shape-soft {
+  border-radius: 1.15rem 1.25rem 1.55rem 1.05rem;
+}
